@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: parking
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/parking_db
+    username: parking_app
+    password: parkingapppass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  security:
+    user:
+      name: admin
+      password: adminpass
+
