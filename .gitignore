@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 
 ### Properties ###
-src/main/resurces/application.yml
+src/main/resources/application.yml
 
 ### STS ###
 .apt_generated
