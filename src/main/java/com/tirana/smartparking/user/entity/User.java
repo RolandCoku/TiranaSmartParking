@@ -29,6 +29,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Car> cars;
+
     public User() {
     }
 
@@ -40,10 +43,27 @@ public class User {
         this.role = role;
     }
 
+    public User(String email, String password, String username, String firstName, String lastName, String phoneNumber) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+    }
+
     public void addRole(Role role) {
         if (this.role == null) {
             this.role = new java.util.HashSet<>();
         }
         this.role.add(role);
+    }
+
+    public void addCar(Car car) {
+        if (this.cars == null) {
+            this.cars = new java.util.HashSet<>();
+        }
+        this.cars.add(car);
+        car.setUser(this);
     }
 }
