@@ -17,13 +17,14 @@ public class Role {
     private Long id;
 
     private String name;
+    private  String description;
 
     public Role() {
     }
 
-    public Role(Long id, String name) {
-        this.id = id;
+    public Role(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 
 }

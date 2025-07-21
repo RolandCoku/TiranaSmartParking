@@ -10,9 +10,10 @@ public class CarResponseDTO {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    private String carNumber;
-    private String carModel;
-    private String carColor;
+    private String licensePlate;
+    private String brand;
+    private String model;
+    private String color;
 
     @Setter(AccessLevel.NONE)
     private Long userId;
@@ -22,11 +23,12 @@ public class CarResponseDTO {
     public CarResponseDTO() {
     }
 
-    public CarResponseDTO(Long id, String carNumber, String carModel, String carColor, Long userId, String userName) {
+    public CarResponseDTO(Long id, String licensePlate, String brand, String model, String color, Long userId, String userName) {
         this.id = id;
-        this.carNumber = carNumber;
-        this.carModel = carModel;
-        this.carColor = carColor;
+        this.licensePlate = licensePlate;
+        this.brand = brand;
+        this.model = model;
+        this.color = color;
         this.userId = userId;
         this.userName = userName;
     }

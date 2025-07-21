@@ -8,8 +8,10 @@ import com.tirana.smartparking.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/api/v1/users")
-@RequestMapping
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -19,14 +21,14 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<UserResponseDTO>> getAllUsers() {
-        //Note: The ApiResponse is a custom response wrapper that can be used to standardize API responses
-        // Here we would typically fetch the list of users from the database and return it
-        // For demonstration purposes, we are returning a dummy response
-        //TODO: Needs error handling and service layer integration
-        UserResponseDTO userResponse = new UserResponseDTO();
+    public ResponseEntity<ApiResponse<List<UserResponseDTO>>> getAllUsers() {
 
-        return ResponseHelper.ok("List of users fetched successfully", userResponse);
+        List<UserResponseDTO> userResponse = userService.getAllUsers();
+
+        if (userResponse.isEmpty())
+            return ResponseHelper.ok("No users found", userResponse);
+        else
+            return ResponseHelper.ok("List of users fetched successfully", userResponse);
     }
 
     @GetMapping("/{id}")
@@ -66,18 +68,6 @@ public class UserController {
         return "List of cars for user ID: " + id;
     }
 
-    @PostMapping("/{id}/cars")
-    public String addUserCar(@PathVariable Long id) {
-        // This method would typically add a new car for a user by their ID
-        return "Car added for user ID: " + id;
-    }
-
-    @DeleteMapping("/{id}/cars/{carId}")
-    public String deleteUserCar(@PathVariable Long id, @PathVariable Long carId) {
-        // This method would typically delete a car associated with a user by their ID
-        return "Car with ID: " + carId + " deleted for user ID: " + id;
-    }
-
     @GetMapping("/{id}/roles")
     public String getUserRoles(@PathVariable Long id) {
         // This method would typically return a list of roles associated with a user by their ID
@@ -85,13 +75,13 @@ public class UserController {
     }
 
     @PostMapping("/{id}/roles")
-    public String addUserRole(@PathVariable Long id) {
+    public String addUserRole(@PathVariable Long id, @RequestBody String role) {
         // This method would typically add a new role for a user by their ID
         return "Role added for user ID: " + id;
     }
 
     @DeleteMapping("/{id}/roles/{roleId}")
-    public String deleteUserRole(@PathVariable Long id, @PathVariable Long roleId) {
+    public String removeUserRole(@PathVariable Long id, @PathVariable Long roleId) {
         // This method would typically delete a role associated with a user by their ID
         return "Role with ID: " + roleId + " deleted for user ID: " + id;
     }

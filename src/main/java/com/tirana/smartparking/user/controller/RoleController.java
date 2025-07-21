@@ -1,34 +1,40 @@
 package com.tirana.smartparking.user.controller;
 
+import com.tirana.smartparking.common.dto.ApiResponse;
+import com.tirana.smartparking.common.response.ResponseHelper;
+import com.tirana.smartparking.user.dto.RoleDTO;
+import com.tirana.smartparking.user.entity.Role;
+import com.tirana.smartparking.user.service.RoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/roles")
 public class RoleController {
     // This controller will handle role-related operations,
-    // For example, assigning roles to users, getting all roles, etc.
+    // For example, getting all roles, creating roles, etc.
 
+    private RoleService roleService;
+    public RoleController(RoleService roleService) {
+        this.roleService = roleService;
+    }
 
     @GetMapping
-    public ResponseEntity<String> getAllRoles() {
-        // This method would typically return a list of all roles
-        // For demonstration purposes, we are returning a dummy response
-        return ResponseEntity.ok("List of all roles");
+    public ResponseEntity<ApiResponse<List<Role>>> getAllRoles() {
+        return ResponseHelper.ok("List of roles fetched successfully", roleService.getRoles());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getRoleById(Long id) {
-        // This method would typically return a role by its ID
-        // For demonstration purposes, we are returning a dummy response
-        return ResponseEntity.ok("Role details for ID: " + id);
+    public ResponseEntity<ApiResponse<Role>> getRoleById(Long id) {
+        return ResponseHelper.ok("Role fetched successfully", roleService.getRoleById(id));
     }
 
     @PostMapping
-    public ResponseEntity<String> createRole() {
-        // This method would typically create a new role in the system
-        // For demonstration purposes, we are returning a dummy response
-        return ResponseEntity.ok("Role created!");
+    public ResponseEntity<ApiResponse<Role>> createRole(@RequestBody RoleDTO roleDTO) {
+        Role createdRole = roleService.createRole(roleDTO);
+        return ResponseHelper.created("Role created successfully", createdRole);
     }
 
     @PutMapping("/{id}")

@@ -16,7 +16,7 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private long id;
-    private String plateNumber;
+    private String licensePlate;
     private String brand;
     private String model;
     private String color;

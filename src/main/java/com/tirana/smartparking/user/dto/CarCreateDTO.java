@@ -1,24 +1,20 @@
 package com.tirana.smartparking.user.dto;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class UserCarsDTO {
-    @Setter(AccessLevel.NONE)
-    private Long id;
+@Setter
+public class CarCreateDTO {
     private String licensePlate;
     private String brand;
     private String model;
     private String color;
 
-    public UserCarsDTO() {
+    public CarCreateDTO() {
     }
 
-    public UserCarsDTO(Long id, String licensePlate, String brand, String model, String color) {
-        this.id = id;
+    public CarCreateDTO(String licensePlate, String brand, String model, String color) {
         this.licensePlate = licensePlate;
         this.brand = brand;
         this.model = model;

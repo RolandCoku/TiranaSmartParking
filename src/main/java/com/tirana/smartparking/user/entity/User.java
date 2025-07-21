@@ -16,10 +16,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private Long id;
+
     private String firstName;
     private String lastName;
     private String username;
     private String password;
+
+    @Column(nullable = false, unique = true)
     private String email;
     private String phoneNumber;
 
@@ -27,7 +30,7 @@ public class User {
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> role;
+    private Set<Role> roles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Car> cars;
@@ -35,12 +38,14 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, String email, String phoneNumber, Set<Role> role) {
+    public User(String firstName, String lastName, String username, String password, String email, String phoneNumber, Set<Role> roles) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
         this.password = password;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.role = role;
+        this.roles = roles;
     }
 
     public User(String email, String password, String username, String firstName, String lastName, String phoneNumber) {
@@ -53,10 +58,10 @@ public class User {
     }
 
     public void addRole(Role role) {
-        if (this.role == null) {
-            this.role = new java.util.HashSet<>();
+        if (this.roles == null) {
+            this.roles = new java.util.HashSet<>();
         }
-        this.role.add(role);
+        this.roles.add(role);
     }
 
     public void addCar(Car car) {

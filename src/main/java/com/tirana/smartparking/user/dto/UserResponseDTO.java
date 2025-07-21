@@ -25,7 +25,7 @@ public class UserResponseDTO {
     public UserResponseDTO() {
     }
 
-    public UserResponseDTO(Long id, String username, String email, String firstName, String lastName, String phoneNumber, String address, Set<Role> roles, Set<UserCarsDTO> userCars) {
+    public UserResponseDTO(Long id, String username, String email, String firstName, String lastName, String phoneNumber, Set<Role> roles, Set<UserCarsDTO> userCars) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -36,12 +36,4 @@ public class UserResponseDTO {
         this.userCars = userCars;
     }
 
-    public UserResponseDTO(Long id, String username, String email, String firstName, String lastName, String phoneNumber) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-    }
 }
