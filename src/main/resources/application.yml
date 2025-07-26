@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: parking
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    open-in-view: false
+
+  security:
+    user:
+      name: ${SPRING_SECURITY_USER_NAME}
+      password: ${SPRING_SECURITY_USER_PASSWORD}
+
+server:
+  port: ${PORT:8080}
+
+springdoc:
+  swagger-ui:
+    operations-sorter: method
+
+
+

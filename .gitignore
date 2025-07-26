@@ -4,8 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### Properties ###
-src/main/resources/application.yml
+### .env files ###
+.env
 
 ### STS ###
 .apt_generated
