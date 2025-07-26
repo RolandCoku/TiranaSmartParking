@@ -13,6 +13,7 @@ import java.util.List;
 @Service
 public interface UserService {
     Page<UserResponseDTO> getAllUsers(Pageable pageable);
-    List<UserResponseDTO> getAllUsers();
+//    List<UserResponseDTO> getAllUsers();
+    UserResponseDTO findById(Long id);
     UserResponseDTO createUser(@RequestBody UserCreateDTO userCreateDTO);
 }

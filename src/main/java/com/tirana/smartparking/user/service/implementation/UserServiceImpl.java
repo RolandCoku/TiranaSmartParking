@@ -51,28 +51,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponseDTO> getAllUsers() {
-        // Fetch all users from the repository
-        List<User> users = userRepository.findAll();
+    public UserResponseDTO findById(Long id) {
+        // Fetch user by ID from the repository
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
 
-        // Convert User entities to UserResponseDTOs
-        return users.stream()
-                .map(user -> new UserResponseDTO(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getPhoneNumber(),
-                        user.getRoles().stream().map(role -> new RoleDTO(
-                                role.getName(),
-                                role.getDescription()
-                        )).collect(Collectors.toSet()),
-                        user.getCreatedAt(),
-                        user.getUpdatedAt()
-                )).toList();
+        // Convert User entity to UserResponseDTO
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhoneNumber(),
+                user.getRoles().stream().map(role -> new RoleDTO(
+                        role.getName(),
+                        role.getDescription()
+                )).collect(Collectors.toSet()),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
     }
 
+// Uncomment the following method if you want to fetch all users without pagination
+
+//    @Override
+//    public List<UserResponseDTO> getAllUsers() {
+//        // Fetch all users from the repository
+//        List<User> users = userRepository.findAll();
+//
+//        // Convert User entities to UserResponseDTOs
+//        return users.stream()
+//                .map(user -> new UserResponseDTO(
+//                        user.getId(),
+//                        user.getUsername(),
+//                        user.getEmail(),
+//                        user.getFirstName(),
+//                        user.getLastName(),
+//                        user.getPhoneNumber(),
+//                        user.getRoles().stream().map(role -> new RoleDTO(
+//                                role.getName(),
+//                                role.getDescription()
+//                        )).collect(Collectors.toSet()),
+//                        user.getCreatedAt(),
+//                        user.getUpdatedAt()
+//                )).toList();
+//    }
+
+    // TODO: Add more validations and error handling as needed to createUser method
     @Override
     public UserResponseDTO createUser(UserCreateDTO userCreateDTO) {
         // Validate the userCreateDTO object
@@ -112,7 +138,6 @@ public class UserServiceImpl implements UserService {
 
         // Save the user using the repository
         user = userRepository.save(user);
-
 
         return new UserResponseDTO(
                 user.getId(),

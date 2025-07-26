@@ -47,9 +47,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public String getUserById(@PathVariable Long id) {
-        // This method would typically return a user by their ID from the database
-        return "User details for ID: " + id;
+    public ResponseEntity<ApiResponse<UserResponseDTO>> getUserById(@PathVariable Long id) {
+        UserResponseDTO user = userService.findById(id);
+        return ResponseHelper.ok("User fetched successfully", user);
     }
 
     @PostMapping
