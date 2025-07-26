@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Setter
@@ -19,13 +20,14 @@ public class UserResponseDTO {
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private Set<Role> roles;
-    private Set<UserCarsDTO> userCars;
+    private Set<RoleDTO> roles;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public UserResponseDTO() {
     }
 
-    public UserResponseDTO(Long id, String username, String email, String firstName, String lastName, String phoneNumber, Set<Role> roles, Set<UserCarsDTO> userCars) {
+    public UserResponseDTO(Long id, String username, String email, String firstName, String lastName, String phoneNumber, Set<RoleDTO> roles, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -33,7 +35,8 @@ public class UserResponseDTO {
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.roles = roles;
-        this.userCars = userCars;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
 }

@@ -15,6 +15,7 @@ public class UserCreateDTO {
     private String lastName;
     private String username;
     private String password;
+    private String confirmPassword;
 
     @Email
     @NotBlank
@@ -26,11 +27,12 @@ public class UserCreateDTO {
     public UserCreateDTO() {
     }
 
-    public UserCreateDTO(String firstName, String lastName, String username, String password, String email, String phoneNumber, Set<String> roles) {
+    public UserCreateDTO(String firstName, String lastName, String username, String password, String confirmPassword, String email, String phoneNumber, Set<String> roles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
+        this.confirmPassword = confirmPassword;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.roles = roles;

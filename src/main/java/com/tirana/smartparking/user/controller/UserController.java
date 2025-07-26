@@ -1,34 +1,49 @@
 package com.tirana.smartparking.user.controller;
 
 import com.tirana.smartparking.common.dto.ApiResponse;
+import com.tirana.smartparking.common.dto.PaginatedResponse;
 import com.tirana.smartparking.common.response.ResponseHelper;
+import com.tirana.smartparking.common.util.PaginationUtil;
+import com.tirana.smartparking.common.util.SortParser;
 import com.tirana.smartparking.user.dto.UserCreateDTO;
 import com.tirana.smartparking.user.dto.UserResponseDTO;
 import com.tirana.smartparking.user.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
+    private final SortParser sortParser;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, SortParser sortParser) {
         this.userService = userService;
+        this.sortParser = sortParser;
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserResponseDTO>>> getAllUsers() {
+    public ResponseEntity<ApiResponse<PaginatedResponse<UserResponseDTO>>> getAllUsers(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "id,asc") String sortBy
+    ) {
 
-        List<UserResponseDTO> userResponse = userService.getAllUsers();
+        Sort sort = sortParser.parseSort(sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        if (userResponse.isEmpty())
-            return ResponseHelper.ok("No users found", userResponse);
+        Page<UserResponseDTO> userPage = userService.getAllUsers(pageable);
+        PaginatedResponse<UserResponseDTO> paginatedResponse = PaginationUtil.toPaginatedResponse(userPage);
+
+        if (paginatedResponse.hasContent())
+            return ResponseHelper.ok("List of users fetched successfully", paginatedResponse);
         else
-            return ResponseHelper.ok("List of users fetched successfully", userResponse);
+            return ResponseHelper.ok("No users found", paginatedResponse);
     }
 
     @GetMapping("/{id}")
@@ -38,9 +53,9 @@ public class UserController {
     }
 
     @PostMapping
-    public String createUser(@RequestBody UserCreateDTO userCreateDTO) {
+    public ResponseEntity<ApiResponse<UserResponseDTO>> createUser(@RequestBody UserCreateDTO userCreateDTO) {
         UserResponseDTO responseDTO = userService.createUser(userCreateDTO);
-        return "User created!";
+        return ResponseHelper.created("User created successfully", responseDTO);
     }
 
     //Update a user's information
@@ -66,12 +81,6 @@ public class UserController {
     public String getUserCars(@PathVariable Long id) {
         // This method would typically return a list of cars associated with a user by their ID
         return "List of cars for user ID: " + id;
-    }
-
-    @GetMapping("/{id}/roles")
-    public String getUserRoles(@PathVariable Long id) {
-        // This method would typically return a list of roles associated with a user by their ID
-        return "List of roles for user ID: " + id;
     }
 
     @PostMapping("/{id}/roles")

@@ -2,17 +2,17 @@ package com.tirana.smartparking.user.service.implementation;
 
 import com.tirana.smartparking.common.exception.ResourceConflictException;
 import com.tirana.smartparking.common.exception.ResourceNotFoundException;
-import com.tirana.smartparking.user.dto.CarCreateDTO;
-import com.tirana.smartparking.user.dto.UserCarsDTO;
+import com.tirana.smartparking.user.dto.RoleDTO;
 import com.tirana.smartparking.user.dto.UserCreateDTO;
 import com.tirana.smartparking.user.dto.UserResponseDTO;
 import com.tirana.smartparking.user.entity.User;
 import com.tirana.smartparking.user.repository.RoleRepository;
 import com.tirana.smartparking.user.repository.UserRepository;
 import com.tirana.smartparking.user.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +29,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
+        // Fetch all users from the repository with pagination
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        // Convert User entities to UserResponseDTOs
+        return userPage.map(user -> new UserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhoneNumber(),
+                user.getRoles().stream().map(role -> new RoleDTO(
+                        role.getName(),
+                        role.getDescription()
+                )).collect(Collectors.toSet()),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        ));
+    }
+
+    @Override
     public List<UserResponseDTO> getAllUsers() {
         // Fetch all users from the repository
         List<User> users = userRepository.findAll();
@@ -42,16 +64,12 @@ public class UserServiceImpl implements UserService {
                         user.getFirstName(),
                         user.getLastName(),
                         user.getPhoneNumber(),
-                        user.getRoles(),
-                        user.getCars().stream().map(
-                                car -> new UserCarsDTO(
-                                        car.getId(),
-                                        car.getLicensePlate(),
-                                        car.getBrand(),
-                                        car.getModel(),
-                                        car.getColor()
-                                )
-                        ).collect(Collectors.toSet())
+                        user.getRoles().stream().map(role -> new RoleDTO(
+                                role.getName(),
+                                role.getDescription()
+                        )).collect(Collectors.toSet()),
+                        user.getCreatedAt(),
+                        user.getUpdatedAt()
                 )).toList();
     }
 
@@ -65,6 +83,11 @@ public class UserServiceImpl implements UserService {
         // Check if the user already exists
         if (userRepository.existsByEmail(userCreateDTO.getEmail())) {
             throw new ResourceConflictException("User creation failed: User with this email already exists");
+        }
+
+        //Check if the passwords match
+        if (!userCreateDTO.getPassword().equals(userCreateDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("User creation failed: Passwords do not match");
         }
 
         User user = new User(
@@ -82,8 +105,6 @@ public class UserServiceImpl implements UserService {
                 new ResourceNotFoundException("User creation failed: Default role '" + DEFAULT_ROLE + "' does not exist")));
         } else {
             for (String role : userCreateDTO.getRoles()) {
-                System.out.println(role);
-                // Assign the role to the user (assuming User has a method to add roles)
                 user.addRole(roleRepository.findByName(role).orElseThrow(() ->
                     new ResourceNotFoundException("User creation failed: Role '" + role + "' does not exist")));
             }
@@ -100,8 +121,12 @@ public class UserServiceImpl implements UserService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getPhoneNumber(),
-                Collections.emptySet(),
-                Collections.emptySet()
+                user.getRoles().stream().map(role -> new RoleDTO(
+                        role.getName(),
+                        role.getDescription()
+                )).collect(Collectors.toSet()),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
         );
     }
 }
