@@ -3,11 +3,13 @@ package com.tirana.smartparking.user.service.implementation;
 import com.tirana.smartparking.common.exception.ResourceConflictException;
 import com.tirana.smartparking.common.exception.ResourceNotFoundException;
 import com.tirana.smartparking.user.dto.*;
+import com.tirana.smartparking.user.entity.Car;
 import com.tirana.smartparking.user.entity.User;
 import com.tirana.smartparking.user.repository.CarRepository;
 import com.tirana.smartparking.user.repository.RoleRepository;
 import com.tirana.smartparking.user.repository.UserRepository;
 import com.tirana.smartparking.user.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -188,6 +190,65 @@ public class UserServiceImpl implements UserService {
                         car.getCreatedAt(),
                         car.getUpdatedAt()
                 ));
+    }
+
+    @Override
+    public UserCarsDTO addCarToUser(Long userId, CarCreateDTO carCreateDTO) {
+        // Fetch the user by ID from the repository
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        // Validate the carCreateDTO object
+        if (carCreateDTO == null || carCreateDTO.getLicensePlate() == null){
+            throw new IllegalArgumentException("Car creation failed: Invalid car data");
+        }
+
+        // Check if the car with the same license plate already exists
+        if (carRepository.existsByLicensePlate(carCreateDTO.getLicensePlate())) {
+            throw new ResourceConflictException("Car creation failed: Car with this license plate already exists");
+        }
+
+        // Create a new Car entity from the DTO
+        Car car = new Car(
+                carCreateDTO.getLicensePlate(),
+                carCreateDTO.getBrand(),
+                carCreateDTO.getModel(),
+                carCreateDTO.getColor(),
+                user // Set the user for the car
+        );
+
+        // Save the car using the repository
+        car = carRepository.save(car);
+
+        return new UserCarsDTO(
+                car.getId(),
+                car.getLicensePlate(),
+                car.getBrand(),
+                car.getModel(),
+                car.getColor(),
+                car.getCreatedAt(),
+                car.getUpdatedAt()
+        );
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public void removeCarFromUser(Long userId, Long carId) {
+        // Fetch the user by ID from the repository
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        // Fetch the car by ID from the repository
+        Car car = carRepository.findById(carId)
+                .orElseThrow(() -> new ResourceNotFoundException("Car not found with ID: " + carId));
+
+        // Check if the car belongs to the user
+        if (!car.getUser().equals(user)) {
+            throw new ResourceConflictException("Car removal failed: Car does not belong to this user");
+        }
+
+        // Remove the car from the user's cars
+        carRepository.delete(car);
     }
 
     @Override

@@ -1,42 +1,82 @@
 package com.tirana.smartparking.user.controller;
+import com.tirana.smartparking.common.dto.ApiResponse;
+import com.tirana.smartparking.common.dto.PaginatedResponse;
+import com.tirana.smartparking.common.response.ResponseHelper;
+import com.tirana.smartparking.common.util.PaginationUtil;
+import com.tirana.smartparking.common.util.SortParser;
+import com.tirana.smartparking.user.dto.CarCreateDTO;
+import com.tirana.smartparking.user.dto.CarResponseDTO;
+import com.tirana.smartparking.user.dto.UserCarsDTO;
+import com.tirana.smartparking.user.service.CarService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/cars")
 public class CarController {
 
+    private final CarService carService;
+    private final SortParser sortParser;
+
+    public CarController(CarService carService, SortParser sortParser) {
+        this.carService = carService;
+        this.sortParser = sortParser;
+    }
+
     // This controller will handle car-related operations,
     // For example, adding a car, deleting a car, getting all cars, etc.
 
     @GetMapping
-    public String getAllCars() {
-        // This method would typically return a list of all cars
-        return "List of all cars";
+    public ResponseEntity<ApiResponse<PaginatedResponse<CarResponseDTO>>> getAllCars(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "id,asc") String sortBy
+    ) {
+
+        Sort sort = sortParser.parseSort(sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<CarResponseDTO> carPage = carService.getAllCars(pageable);
+
+        PaginatedResponse<CarResponseDTO> response = PaginationUtil.toPaginatedResponse(carPage);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "List of cars fetched successfully", response));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<CarResponseDTO>> getCarById(@PathVariable Long id) {
+        CarResponseDTO car = carService.findById(id);
+        return ResponseHelper.ok("Car fetched successfully", car);
+    }
+
+    // This method will handle the addition of a new car for the authenticated user.
     @PostMapping
-    public String addCar() {
-        // This method would typically add a new car to the system
-        // Needs a way to get the user ID or context to associate the car with a user
-        return "Car added!";
+    public ResponseEntity<ApiResponse<CarResponseDTO>> addCar(
+            @RequestBody CarCreateDTO carCreateDTO
+            ) {
+        CarResponseDTO createdCar = carService.createCar(carCreateDTO);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Car added successfully", createdCar));
     }
 
     @PutMapping("/{id}")
-    public String updateCar(@PathVariable Long id) {
-        // This method would typically update a car's information
-        return "Car with ID: " + id + " updated!";
+    public ResponseEntity<ApiResponse<UserCarsDTO>> updateCar(@PathVariable Long id, @RequestBody CarCreateDTO carCreateDTO) {
+        UserCarsDTO updatedCar = carService.updateCar(id, carCreateDTO);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Car updated successfully", updatedCar));
     }
 
     @PatchMapping("/{id}")
-    public String patchCar(@PathVariable Long id) {
-        // This method would typically partially update a car's information
-        return "Car with ID: " + id + " patched!";
+    public ResponseEntity<ApiResponse<UserCarsDTO>> patchCar(@PathVariable Long id, @RequestBody CarCreateDTO carCreateDTO) {
+        UserCarsDTO patchedCar = carService.patchCar(id, carCreateDTO);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Car patched successfully", patchedCar));
     }
 
     @DeleteMapping("/{id}")
-    public  String deleteCar(@PathVariable Long id) {
-        // This method would typically delete a car from the system
-        return "Car with ID: " + id + " deleted!";
+    public ResponseEntity<?> deleteCar(@PathVariable Long id) {
+        carService.deleteCar(id);
+        return ResponseHelper.noContent();
     }
 
 }

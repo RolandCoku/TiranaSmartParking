@@ -5,10 +5,7 @@ import com.tirana.smartparking.common.dto.PaginatedResponse;
 import com.tirana.smartparking.common.response.ResponseHelper;
 import com.tirana.smartparking.common.util.PaginationUtil;
 import com.tirana.smartparking.common.util.SortParser;
-import com.tirana.smartparking.user.dto.UserCarsDTO;
-import com.tirana.smartparking.user.dto.UserCreateDTO;
-import com.tirana.smartparking.user.dto.UserResponseDTO;
-import com.tirana.smartparking.user.dto.UserUpdateDTO;
+import com.tirana.smartparking.user.dto.*;
 import com.tirana.smartparking.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -98,6 +95,18 @@ public class UserController {
             return ResponseHelper.ok("List of user's cars fetched successfully", paginatedResponse);
         else
             return ResponseHelper.ok("No cars found for this user", paginatedResponse);
+    }
+
+    @PostMapping("/{id}/cars")
+    public ResponseEntity<ApiResponse<UserCarsDTO>> addUserCar(@PathVariable Long id, @RequestBody CarCreateDTO carCreateDTO) {
+        UserCarsDTO userCars = userService.addCarToUser(id, carCreateDTO);
+        return ResponseHelper.ok("Car added successfully", userCars);
+    }
+
+    @DeleteMapping("/{id}/cars/{carId}")
+    public ResponseEntity<ApiResponse<String>> removeUserCar(@PathVariable Long id, @PathVariable Long carId) {
+        userService.removeCarFromUser(id, carId);
+        return ResponseHelper.noContent();
     }
 
     @PatchMapping("/{id}/roles")

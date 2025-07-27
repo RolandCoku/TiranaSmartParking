@@ -21,6 +21,8 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private long id;
+
+    @Column(nullable = false, unique = true)
     private String licensePlate;
     private String brand;
     private String model;
@@ -36,5 +38,16 @@ public class Car {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Car() {
+    }
+
+    public Car(String licensePlate, String brand, String model, String color, User user) {
+        this.licensePlate = licensePlate;
+        this.brand = brand;
+        this.model = model;
+        this.color = color;
+        this.user = user;
+    }
 
 }

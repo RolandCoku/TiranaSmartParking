@@ -1,9 +1,6 @@
 package com.tirana.smartparking.user.service;
 
-import com.tirana.smartparking.user.dto.UserCarsDTO;
-import com.tirana.smartparking.user.dto.UserCreateDTO;
-import com.tirana.smartparking.user.dto.UserResponseDTO;
-import com.tirana.smartparking.user.dto.UserUpdateDTO;
+import com.tirana.smartparking.user.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +18,8 @@ public interface UserService {
     UserResponseDTO patchUser(Long id, UserUpdateDTO userUpdateDTO);
     void deleteUser(Long id);
     Page<UserCarsDTO> getUserCars(Long userId, Pageable pageable);
+    UserCarsDTO addCarToUser(Long userId, CarCreateDTO carCreateDTO);
+    void removeCarFromUser(Long userId, Long carId);
     UserResponseDTO addRoleToUser(Long userId, Set<String> roleName);
     UserResponseDTO removeRoleFromUser(Long userId, String roleName);
 }
