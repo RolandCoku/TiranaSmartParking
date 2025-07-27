@@ -44,8 +44,7 @@ public class ResponseHelper {
         return ResponseEntity.status(409).body(response);
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> noContent(String message) {
-        ApiResponse<T> response = new ApiResponse<>(true, message, null);
+    public static <T> ResponseEntity<ApiResponse<T>> noContent() {
         return ResponseEntity.noContent().build();
     }
 }

@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class UserCreateDTO {
+public class UserUpdateDTO {
 
     private String firstName;
     private String lastName;
@@ -22,7 +22,6 @@ public class UserCreateDTO {
     private String email;
 
     private String phoneNumber;
-    private Set<String> roles;
 }
 
 

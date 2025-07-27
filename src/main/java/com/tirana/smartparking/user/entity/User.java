@@ -1,4 +1,6 @@
 package com.tirana.smartparking.user.entity;
+import com.tirana.smartparking.common.exception.ResourceNotFoundException;
+import com.tirana.smartparking.common.exception.RoleOperationNotAllowedException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -74,6 +76,19 @@ public class User {
             this.roles = new java.util.HashSet<>();
         }
         this.roles.add(role);
+    }
+
+    public void removeRole(Role role) throws ResourceNotFoundException, RoleOperationNotAllowedException {
+        if (this.roles == null || !this.roles.contains(role)) {
+            throw new ResourceNotFoundException("Role " + role.getName() + " not found in user's roles");
+        }
+
+        if (this.roles.size() == 1) {
+            throw new RoleOperationNotAllowedException(
+                    "Cannot remove the last role from user " + this.username + ". At least one role is required.");
+        }
+
+        this.roles.remove(role);
     }
 
     public void addCar(Car car) {

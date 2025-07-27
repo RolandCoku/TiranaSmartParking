@@ -5,8 +5,10 @@ import com.tirana.smartparking.common.dto.PaginatedResponse;
 import com.tirana.smartparking.common.response.ResponseHelper;
 import com.tirana.smartparking.common.util.PaginationUtil;
 import com.tirana.smartparking.common.util.SortParser;
+import com.tirana.smartparking.user.dto.UserCarsDTO;
 import com.tirana.smartparking.user.dto.UserCreateDTO;
 import com.tirana.smartparking.user.dto.UserResponseDTO;
+import com.tirana.smartparking.user.dto.UserUpdateDTO;
 import com.tirana.smartparking.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -60,38 +64,51 @@ public class UserController {
 
     //Update a user's information
     @PutMapping("/{id}")
-    public String updateUser(@PathVariable Long id) {
-        // This method would typically update a user's information in the database
-        return "User with ID: " + id + " updated!";
+    public ResponseEntity<ApiResponse<UserResponseDTO>> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+        UserResponseDTO updatedUser = userService.updateUser(id, userUpdateDTO);
+        return ResponseHelper.ok("User updated successfully", updatedUser);
     }
 
     @PatchMapping("/{id}")
-    public String patchUser(@PathVariable Long id) {
-        // This method would typically partially update a user's information in the database
-        return "User with ID: " + id + " patched!";
+    public ResponseEntity<ApiResponse<UserResponseDTO>> patchUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+        UserResponseDTO patchedUser = userService.patchUser(id, userUpdateDTO);
+        return ResponseHelper.ok("User patched successfully", patchedUser);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteUser(@PathVariable Long id) {
-        // This method would typically delete a user from the database
-        return "User with ID: " + id + " deleted!";
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseHelper.noContent();
     }
 
     @GetMapping("/{id}/cars")
-    public String getUserCars(@PathVariable Long id) {
-        // This method would typically return a list of cars associated with a user by their ID
-        return "List of cars for user ID: " + id;
+    public ResponseEntity<ApiResponse<PaginatedResponse<UserCarsDTO>>> getUserCars(
+            @PathVariable Long id,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "id,asc") String sort
+    ) {
+        Sort parsedSort = sortParser.parseSort(sort);
+        Pageable pageable = PageRequest.of(page, size, parsedSort);
+
+        Page<UserCarsDTO> userCarsPage = userService.getUserCars(id, pageable);
+        PaginatedResponse<UserCarsDTO> paginatedResponse = PaginationUtil.toPaginatedResponse(userCarsPage);
+
+        if (paginatedResponse.hasContent())
+            return ResponseHelper.ok("List of user's cars fetched successfully", paginatedResponse);
+        else
+            return ResponseHelper.ok("No cars found for this user", paginatedResponse);
     }
 
-    @PostMapping("/{id}/roles")
-    public String addUserRole(@PathVariable Long id, @RequestBody String role) {
-        // This method would typically add a new role for a user by their ID
-        return "Role added for user ID: " + id;
+    @PatchMapping("/{id}/roles")
+    public ResponseEntity<ApiResponse<UserResponseDTO>> addUserRole(@PathVariable Long id, @RequestBody Set<String> roles) {
+        UserResponseDTO user = userService.addRoleToUser(id, roles);
+        return ResponseHelper.ok("Role added successfully", user);
     }
 
-    @DeleteMapping("/{id}/roles/{roleId}")
-    public String removeUserRole(@PathVariable Long id, @PathVariable Long roleId) {
-        // This method would typically delete a role associated with a user by their ID
-        return "Role with ID: " + roleId + " deleted for user ID: " + id;
+    @DeleteMapping("/{id}/roles/{roleName}")
+    public ResponseEntity<ApiResponse<UserResponseDTO>> removeUserRole(@PathVariable Long id, @PathVariable String roleName) {
+        UserResponseDTO user = userService.removeRoleFromUser(id, roleName);
+        return ResponseHelper.ok("Role removed successfully", user);
     }
 }

@@ -36,12 +36,12 @@ public class RoleServiceImpl implements RoleService {
         }
 
         // Check if a role with the same name already exists
-        if (roleRepository.findByName(roleDTO.getName()).isPresent()) {
+        if (roleRepository.findByName(roleDTO.getName().trim().toUpperCase()).isPresent()) {
             throw new ResourceConflictException("Role with name " + roleDTO.getName() + " already exists");
         }
 
         Role role = new Role(
-                roleDTO.getName(),
+                roleDTO.getName().trim().toUpperCase(),
                 roleDTO.getDescription()
         );
 

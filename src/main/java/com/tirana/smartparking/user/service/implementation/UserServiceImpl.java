@@ -2,10 +2,9 @@ package com.tirana.smartparking.user.service.implementation;
 
 import com.tirana.smartparking.common.exception.ResourceConflictException;
 import com.tirana.smartparking.common.exception.ResourceNotFoundException;
-import com.tirana.smartparking.user.dto.RoleDTO;
-import com.tirana.smartparking.user.dto.UserCreateDTO;
-import com.tirana.smartparking.user.dto.UserResponseDTO;
+import com.tirana.smartparking.user.dto.*;
 import com.tirana.smartparking.user.entity.User;
+import com.tirana.smartparking.user.repository.CarRepository;
 import com.tirana.smartparking.user.repository.RoleRepository;
 import com.tirana.smartparking.user.repository.UserRepository;
 import com.tirana.smartparking.user.service.UserService;
@@ -13,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,11 +20,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CarRepository carRepository;
     private static final String DEFAULT_ROLE = "USER";
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
+                           CarRepository carRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.carRepository = carRepository;
     }
 
     @Override
@@ -57,6 +59,203 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
 
         // Convert User entity to UserResponseDTO
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhoneNumber(),
+                user.getRoles().stream().map(role -> new RoleDTO(
+                        role.getName(),
+                        role.getDescription()
+                )).collect(Collectors.toSet()),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
+    }
+
+    @Override
+    public UserResponseDTO updateUser(Long id, UserUpdateDTO userUpdateDTO) {
+        // Validate the userUpdateDTO object
+        if (userUpdateDTO == null || userUpdateDTO.getEmail() == null) {
+            throw new IllegalArgumentException("User update failed: Invalid user data");
+        }
+
+        // Fetch the existing user from the repository
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+
+        // Update the user's fields
+        existingUser.setUsername(userUpdateDTO.getUsername());
+        existingUser.setEmail(userUpdateDTO.getEmail());
+        existingUser.setFirstName(userUpdateDTO.getFirstName());
+        existingUser.setLastName(userUpdateDTO.getLastName());
+        existingUser.setPhoneNumber(userUpdateDTO.getPhoneNumber());
+
+        // Save the updated user using the repository
+        existingUser = userRepository.save(existingUser);
+
+        return new UserResponseDTO(
+                existingUser.getId(),
+                existingUser.getUsername(),
+                existingUser.getEmail(),
+                existingUser.getFirstName(),
+                existingUser.getLastName(),
+                existingUser.getPhoneNumber(),
+                existingUser.getRoles().stream().map(role -> new RoleDTO(
+                        role.getName(),
+                        role.getDescription()
+                )).collect(Collectors.toSet()),
+                existingUser.getCreatedAt(),
+                existingUser.getUpdatedAt()
+        );
+    }
+
+    @Override
+    public UserResponseDTO patchUser(Long id, UserUpdateDTO userUpdateDTO) {
+        // Validate the userUpdateDTO object
+        if (userUpdateDTO == null) {
+            throw new IllegalArgumentException("User patch failed: Invalid user data");
+        }
+
+        // Fetch the existing user from the repository
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+
+        // Update only the fields that are provided in the patch request
+        if (userUpdateDTO.getUsername() != null) {
+            existingUser.setUsername(userUpdateDTO.getUsername());
+        }
+        if (userUpdateDTO.getEmail() != null) {
+            // Check if the email is already in use by another user
+            if (userRepository.existsByEmail(userUpdateDTO.getEmail()) && !existingUser.getEmail().equals(userUpdateDTO.getEmail())) {
+                throw new ResourceConflictException("User patch failed: Email already in use");
+            }
+            existingUser.setEmail(userUpdateDTO.getEmail());
+        }
+        if (userUpdateDTO.getFirstName() != null) {
+            existingUser.setFirstName(userUpdateDTO.getFirstName());
+        }
+        if (userUpdateDTO.getLastName() != null) {
+            existingUser.setLastName(userUpdateDTO.getLastName());
+        }
+        if (userUpdateDTO.getPhoneNumber() != null) {
+            existingUser.setPhoneNumber(userUpdateDTO.getPhoneNumber());
+        }
+
+        // Save the updated user using the repository
+        existingUser = userRepository.save(existingUser);
+
+        return new UserResponseDTO(
+                existingUser.getId(),
+                existingUser.getUsername(),
+                existingUser.getEmail(),
+                existingUser.getFirstName(),
+                existingUser.getLastName(),
+                existingUser.getPhoneNumber(),
+                existingUser.getRoles().stream().map(role -> new RoleDTO(
+                        role.getName(),
+                        role.getDescription()
+                )).collect(Collectors.toSet()),
+                existingUser.getCreatedAt(),
+                existingUser.getUpdatedAt()
+        );
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        // Fetch the user by ID from the repository
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+        userRepository.delete(user);
+    }
+
+    @Override
+    public Page<UserCarsDTO> getUserCars(Long userId, Pageable pageable) {
+        // Fetch the user by ID from the repository
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        // Fetch the user's cars from the car repository
+        return carRepository.findByUserId(userId, pageable)
+                .map(car -> new UserCarsDTO(
+                        car.getId(),
+                        car.getLicensePlate(),
+                        car.getBrand(),
+                        car.getModel(),
+                        car.getColor(),
+                        car.getCreatedAt(),
+                        car.getUpdatedAt()
+                ));
+    }
+
+    @Override
+    public UserResponseDTO addRoleToUser(Long userId, Set<String> roleNames) {
+        // Fetch the user by ID from the repository
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        // Validate the role names
+        if (roleNames == null || roleNames.isEmpty()) {
+            throw new IllegalArgumentException("User update failed: Invalid role names");
+        }
+
+        // Add roles to the user
+        for (String role : roleNames) {
+            // Check if the role exists
+            roleRepository.findByName(role.trim().toUpperCase()).ifPresentOrElse(
+                user::addRole,
+                () -> {
+                    throw new ResourceNotFoundException("User update failed: Role '" + role + "' does not exist");
+                }
+            );
+        }
+
+        // Save the updated user using the repository
+        user = userRepository.save(user);
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhoneNumber(),
+                user.getRoles().stream().map(r -> new RoleDTO(
+                        r.getName(),
+                        r.getDescription()
+                )).collect(Collectors.toSet()),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
+    }
+
+    @Override
+    public UserResponseDTO removeRoleFromUser(Long userId, String roleName) {
+        // Validate the role name
+        if (roleName == null || roleName.isEmpty()) {
+            throw new IllegalArgumentException("User update failed: Invalid role name");
+        }
+
+        // Fetch the user by ID from the repository
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        // We save the role name in uppercase in DB to ensure consistency so we normalize it
+        String normalizedRoleName = roleName.trim().toUpperCase();
+
+        // Check if the role exists
+        roleRepository.findByName(normalizedRoleName).ifPresentOrElse(
+                user::removeRole,
+            () -> {
+                throw new ResourceNotFoundException("User update failed: Role '" + roleName + "' does not exist");
+            }
+        );
+
+        // Save the updated user using the repository
+        user = userRepository.save(user);
+
         return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
