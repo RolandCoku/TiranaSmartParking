@@ -14,6 +14,7 @@ public interface UserService {
     Page<UserResponseDTO> getAllUsers(Pageable pageable);
     UserResponseDTO createUser(@RequestBody UserCreateDTO userCreateDTO);
     //    List<UserResponseDTO> getAllUsers();
+    UserResponseDTO findByUsername(String username);
     UserResponseDTO findById(Long id);
     UserResponseDTO updateUser(Long id, UserUpdateDTO userUpdateDTO);
     UserResponseDTO patchUser(Long id, UserUpdateDTO userUpdateDTO);

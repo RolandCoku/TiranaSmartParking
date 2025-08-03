@@ -1,5 +1,6 @@
 package com.tirana.smartparking.user.service.implementation;
 
+import com.tirana.smartparking.common.exception.ResourceNotFoundException;
 import com.tirana.smartparking.user.dto.CarCreateDTO;
 import com.tirana.smartparking.user.dto.CarResponseDTO;
 import com.tirana.smartparking.user.dto.UserCarsDTO;
@@ -49,16 +50,7 @@ public class CarServiceImpl implements CarService {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Car with ID " + id + " not found"));
 
-        return new CarResponseDTO(
-                car.getId(),
-                car.getLicensePlate(),
-                car.getBrand(),
-                car.getModel(),
-                car.getColor(),
-                car.getUser() != null ? car.getUser().getId() : null,
-                car.getUser() != null ? car.getUser().getFirstName() : null,
-                car.getUser() != null ? car.getUser().getLastName() : null
-        );
+        return getCarResponseDTO(car);
     }
 
     //TODO: The request will have to be authorized to update the car
@@ -132,9 +124,38 @@ public class CarServiceImpl implements CarService {
     @Override
     public void deleteCar(Long id) {
         Car car = carRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Car with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Car with ID " + id + " not found"));
 
         // Delete the car
         carRepository.delete(car);
+    }
+
+    @Override
+    public UserCarsDTO getCarByUserAndId(Long userId, Long carId) {
+        Car car = carRepository.findBuUserIdAndCarId(userId, carId)
+                .orElseThrow(() -> new ResourceNotFoundException("Car with ID " + carId + " not found!"));
+
+        return new UserCarsDTO(
+                car.getId(),
+                car.getLicensePlate(),
+                car.getBrand(),
+                car.getModel(),
+                car.getColor(),
+                car.getCreatedAt(),
+                car.getUpdatedAt()
+        );
+    }
+
+    private CarResponseDTO getCarResponseDTO(Car car) {
+        return new CarResponseDTO(
+                car.getId(),
+                car.getLicensePlate(),
+                car.getBrand(),
+                car.getModel(),
+                car.getColor(),
+                car.getUser() != null ? car.getUser().getId() : null,
+                car.getUser() != null ? car.getUser().getFirstName() : null,
+                car.getUser() != null ? car.getUser().getLastName() : null
+        );
     }
 }

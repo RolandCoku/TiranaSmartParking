@@ -15,4 +15,6 @@ public interface CarService {
     UserCarsDTO updateCar(Long id, CarCreateDTO carUpdateDTO);
     UserCarsDTO patchCar(Long id, CarCreateDTO carUpdateDTO);
     void deleteCar(Long id);
+
+    UserCarsDTO getCarByUserAndId(Long userId, Long carId);
 }
