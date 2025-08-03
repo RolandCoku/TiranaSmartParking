@@ -18,12 +18,25 @@ spring:
       name: ${SPRING_SECURITY_USER_NAME}
       password: ${SPRING_SECURITY_USER_PASSWORD}
 
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#        # For production, you'd use an external authorization server
+#        # issuer-uri: https://your-auth-server.com
+#        # For development, we'll use our own JWT configuration
+jwt:
+  secret: "${JWT_SECRET}"
+  expiration: 3600 # 1 hour
+  refresh-expiration: 2592000 # 30 days
+
+
+
 server:
   port: ${PORT:8080}
 
 springdoc:
   swagger-ui:
     operations-sorter: method
-
+    url: /v3/api-docs
 
 

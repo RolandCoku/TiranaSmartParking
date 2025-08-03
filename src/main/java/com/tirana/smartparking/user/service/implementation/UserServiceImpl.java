@@ -1,5 +1,7 @@
 package com.tirana.smartparking.user.service.implementation;
 
+import com.tirana.smartparking.auth.dto.UserLoginDTO;
+import com.tirana.smartparking.auth.service.implementation.JwtServiceImpl;
 import com.tirana.smartparking.common.exception.ResourceConflictException;
 import com.tirana.smartparking.common.exception.ResourceNotFoundException;
 import com.tirana.smartparking.user.dto.*;
@@ -12,6 +14,11 @@ import com.tirana.smartparking.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -23,13 +30,20 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final CarRepository carRepository;
+    private final PasswordEncoder passwordEncoder;
     private static final String DEFAULT_ROLE = "USER";
+    private final JwtServiceImpl jwtService;
+    private final AuthenticationManager authenticationManager;
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-                           CarRepository carRepository) {
+                           CarRepository carRepository, PasswordEncoder passwordEncoder,
+                           JwtServiceImpl jwtService, AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.carRepository = carRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -378,7 +392,7 @@ public class UserServiceImpl implements UserService {
 
         User user = new User(
                 userCreateDTO.getEmail(),
-                userCreateDTO.getPassword(),
+                passwordEncoder.encode(userCreateDTO.getPassword()),
                 userCreateDTO.getUsername(),
                 userCreateDTO.getFirstName(),
                 userCreateDTO.getLastName(),

@@ -12,9 +12,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
+
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -28,6 +30,7 @@ public class UserController {
         this.sortParser = sortParser;
     }
 
+    @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<UserResponseDTO>>> getAllUsers(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -53,6 +56,7 @@ public class UserController {
         return ResponseHelper.ok("User fetched successfully", user);
     }
 
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponseDTO>> createUser(@RequestBody UserCreateDTO userCreateDTO) {
         UserResponseDTO responseDTO = userService.createUser(userCreateDTO);
@@ -61,6 +65,7 @@ public class UserController {
 
     //Update a user's information
     @PutMapping("/{id}")
+
     public ResponseEntity<ApiResponse<UserResponseDTO>> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
         UserResponseDTO updatedUser = userService.updateUser(id, userUpdateDTO);
         return ResponseHelper.ok("User updated successfully", updatedUser);

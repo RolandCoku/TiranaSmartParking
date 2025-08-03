@@ -1,5 +1,6 @@
 package com.tirana.smartparking.user.service;
 
+import com.tirana.smartparking.auth.dto.UserLoginDTO;
 import com.tirana.smartparking.user.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

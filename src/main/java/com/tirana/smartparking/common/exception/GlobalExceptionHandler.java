@@ -3,6 +3,7 @@ package com.tirana.smartparking.common.exception;
 import com.tirana.smartparking.common.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiResponse<String> handleNoResourceFound(NoResourceFoundException ex) {
-        return new ApiResponse<>(false, "Resource not found: " + ex.getMessage(), null);
+        return new ApiResponse<>(false, "Endpoint does not exist:" + ex.getMessage(), null);
     }
 
     @ExceptionHandler(RoleOperationNotAllowedException.class)
@@ -53,4 +54,15 @@ public class GlobalExceptionHandler {
         return new ApiResponse<>(false, "Role operation not allowed: " + ex.getMessage(), null);
     }
 
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<String> handleInvalidRefreshToken(InvalidRefreshTokenException ex) {
+        return new ApiResponse<>(false, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<String> handleBadCredentials(BadCredentialsException ex) {
+        return new ApiResponse<>(false, ex.getMessage(), null);
+    }
 }

@@ -8,8 +8,13 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -17,7 +22,7 @@ import java.util.Set;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +42,10 @@ public class User {
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Car> cars;
+    private Set<Car> cars = new HashSet<>();
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -97,5 +102,27 @@ public class User {
         }
         this.cars.add(car);
         car.setUser(this);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Collect all permissions from all roles and convert them to SimpleGrantedAuthority.
+        // Also include roles themselves as authorities (e.g., "ROLE_USER") if you want to use hasRole()
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        // Add permissions
+        if (this.roles != null) {
+            this.roles.forEach(role -> {
+                if (role.getPermissions() != null) {
+                    role.getPermissions().forEach(permission ->
+                            authorities.add(new SimpleGrantedAuthority(permission.getName().name()))
+                    );
+                }
+                // Add the role name itself as an authority, prefixed with "ROLE_"
+                // This allows using hasRole('ADMIN') or hasAuthority('ROLE_ADMIN')
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+            });
+        }
+        return authorities;
     }
 }
