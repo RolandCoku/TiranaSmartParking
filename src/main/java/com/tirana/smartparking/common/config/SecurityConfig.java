@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // Everything else needs auth
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Set session management to stateless for JWTs
-                .authenticationProvider(authenticationProvider()) // Set the AuthenticationProvider
+                .authenticationProvider(daoAuthenticationProvider()) // Set the AuthenticationProvider
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // Add the JWT filter to the chain before the default Spring filter
 
         return http.build();
@@ -51,10 +51,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
     @Bean

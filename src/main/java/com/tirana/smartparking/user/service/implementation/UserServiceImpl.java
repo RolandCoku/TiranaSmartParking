@@ -385,6 +385,11 @@ public class UserServiceImpl implements UserService {
             throw new ResourceConflictException("User creation failed: User with this email already exists");
         }
 
+        // Check if the username is already taken
+        if (userRepository.existsByUsername(userCreateDTO.getUsername())) {
+            throw new ResourceConflictException("User creation failed: Username already taken");
+        }
+
         //Check if the passwords match
         if (!userCreateDTO.getPassword().equals(userCreateDTO.getConfirmPassword())) {
             throw new IllegalArgumentException("User creation failed: Passwords do not match");

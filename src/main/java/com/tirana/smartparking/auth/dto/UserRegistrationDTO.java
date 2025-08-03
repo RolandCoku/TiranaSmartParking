@@ -1,22 +1,19 @@
-package com.tirana.smartparking.user.dto;
+package com.tirana.smartparking.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.Set;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserCreateDTO {
-
+public class UserRegistrationDTO {
     private String firstName;
     private String lastName;
+
+    @NotBlank(message = "Username is required!")
     private String username;
     private String password;
     private String confirmPassword;
@@ -26,7 +23,5 @@ public class UserCreateDTO {
     private String email;
 
     private String phoneNumber;
-    private Set<String> roles;
 }
-
 

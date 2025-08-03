@@ -39,5 +39,13 @@ public class DataSeeder implements CommandLineRunner {
             admin.setPermissions(new HashSet<>(permissionRepository.findAll()));
             roleRepository.save(admin);
         }
+
+        // Create a USER role with only the READ permission
+        if (roleRepository.findByName("USER").isEmpty()) {
+            Role role = new Role();
+            role.setName("USER");
+            role.setDescription("Regular user role with limited permissions");
+            roleRepository.save(role);
+        }
     }
 }
