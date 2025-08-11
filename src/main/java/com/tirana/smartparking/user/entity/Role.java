@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -38,7 +39,7 @@ public class Role {
     @JoinTable(name = "role_permission",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    private Set<Permission> permissions;
+    private Set<Permission> permissions = new HashSet<>();
 
     public Role() {
     }
@@ -46,6 +47,13 @@ public class Role {
     public Role(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public void addPermission(Permission permission) {
+        if (permissions == null) {
+            throw new IllegalStateException("Permissions set is not initialized.");
+        }
+        permissions.add(permission);
     }
 
     @Override

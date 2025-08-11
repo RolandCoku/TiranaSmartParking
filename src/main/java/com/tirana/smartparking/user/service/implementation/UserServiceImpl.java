@@ -1,7 +1,5 @@
 package com.tirana.smartparking.user.service.implementation;
 
-import com.tirana.smartparking.auth.dto.UserLoginDTO;
-import com.tirana.smartparking.auth.service.implementation.JwtServiceImpl;
 import com.tirana.smartparking.common.exception.ResourceConflictException;
 import com.tirana.smartparking.common.exception.ResourceNotFoundException;
 import com.tirana.smartparking.user.dto.*;
@@ -14,10 +12,6 @@ import com.tirana.smartparking.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,18 +26,14 @@ public class UserServiceImpl implements UserService {
     private final CarRepository carRepository;
     private final PasswordEncoder passwordEncoder;
     private static final String DEFAULT_ROLE = "USER";
-    private final JwtServiceImpl jwtService;
-    private final AuthenticationManager authenticationManager;
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-                           CarRepository carRepository, PasswordEncoder passwordEncoder,
-                           JwtServiceImpl jwtService, AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+                           CarRepository carRepository, PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.carRepository = carRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
     }
 
     @Override
@@ -84,7 +74,8 @@ public class UserServiceImpl implements UserService {
                 user.getPhoneNumber(),
                 user.getRoles().stream().map(role -> new RoleDTO(
                         role.getName(),
-                        role.getDescription()
+                        role.getDescription(),
+                        role.getPermissions().stream().map(permission -> permission.getName().name()).collect(Collectors.toSet())
                 )).collect(Collectors.toSet()),
                 user.getCreatedAt(),
                 user.getUpdatedAt()

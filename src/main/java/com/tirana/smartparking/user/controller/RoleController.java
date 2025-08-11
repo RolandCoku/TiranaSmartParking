@@ -3,58 +3,60 @@ package com.tirana.smartparking.user.controller;
 import com.tirana.smartparking.common.dto.ApiResponse;
 import com.tirana.smartparking.common.response.ResponseHelper;
 import com.tirana.smartparking.user.dto.RoleDTO;
-import com.tirana.smartparking.user.entity.Role;
+import com.tirana.smartparking.user.dto.RoleResponseDTO;
 import com.tirana.smartparking.user.service.RoleService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@PreAuthorize("hasAuthority('EDIT_ROLES')")
 @RequestMapping("/api/v1/roles")
 public class RoleController {
     // This controller will handle role-related operations,
     // For example, getting all roles, creating roles, etc.
 
-    private RoleService roleService;
+    private final RoleService roleService;
     public RoleController(RoleService roleService) {
         this.roleService = roleService;
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Role>>> getAllRoles() {
+    public ResponseEntity<ApiResponse<List<RoleResponseDTO>>> getAllRoles() {
         return ResponseHelper.ok("List of roles fetched successfully", roleService.getRoles());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Role>> getRoleById(Long id) {
+    public ResponseEntity<ApiResponse<RoleResponseDTO>> getRoleById(@PathVariable Long id) {
         return ResponseHelper.ok("Role fetched successfully", roleService.getRoleById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Role>> createRole(@RequestBody RoleDTO roleDTO) {
-        Role createdRole = roleService.createRole(roleDTO);
+    public ResponseEntity<ApiResponse<RoleResponseDTO>> createRole(@RequestBody @Valid RoleDTO roleDTO) {
+        RoleResponseDTO createdRole = roleService.createRole(roleDTO);
         return ResponseHelper.created("Role created successfully", createdRole);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateRole(@PathVariable Long id) {
-        // This method would typically update a role's information
-        // For demonstration purposes, we are returning a dummy response
-        return ResponseEntity.ok("Role with ID: " + id + " updated!");
+    public ResponseEntity<ApiResponse<RoleResponseDTO>> updateRole(@PathVariable Long id,
+                                                                   @RequestBody RoleDTO roleDTO) {
+        RoleResponseDTO updatedRole = roleService.updateRole(id, roleDTO);
+        return ResponseHelper.ok("Role with ID: " + id + " updated successfully", updatedRole);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> patchRole(@PathVariable Long id) {
-        // This method would typically partially update a role's information
-        // For demonstration purposes, we are returning a dummy response
-        return ResponseEntity.ok("Role with ID: " + id + " patched!");
+    public ResponseEntity<ApiResponse<RoleResponseDTO>> patchRole(@PathVariable Long id,
+                                                       @RequestBody RoleDTO roleDTO) {
+        RoleResponseDTO updatedRole = roleService.patchRole(id, roleDTO);
+        return ResponseHelper.ok("Role with ID: " + id + " patched successfully", updatedRole);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRole(@PathVariable Long id) {
-        // This method would typically delete a role from the system
-        // For demonstration purposes, we are returning a dummy response
-        return ResponseEntity.ok("Role with ID: " + id + " deleted!");
+    public ResponseEntity<?> deleteRole(@PathVariable Long id) {
+        roleService.deleteRole(id);
+        return ResponseHelper.noContent();
     }
 }

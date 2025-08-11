@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,6 +31,7 @@ public class CarController {
     // This controller will handle car-related operations,
     // For example, adding a car, deleting a car, getting all cars, etc.
 
+    @PreAuthorize("hasAuthority('CAR_READ')")
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<CarResponseDTO>>> getAllCars(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -46,6 +48,7 @@ public class CarController {
         return ResponseEntity.ok(new ApiResponse<>(true, "List of cars fetched successfully", response));
     }
 
+    @PreAuthorize("hasAuthority('CAR_READ')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CarResponseDTO>> getCarById(@PathVariable Long id) {
         CarResponseDTO car = carService.findById(id);
@@ -53,6 +56,7 @@ public class CarController {
     }
 
     // This method will handle the addition of a new car for the authenticated user.
+    @PreAuthorize("hasAuthority('CAR_CREATE')")
     @PostMapping
     public ResponseEntity<ApiResponse<CarResponseDTO>> addCar(
             @RequestBody CarCreateDTO carCreateDTO
@@ -61,18 +65,21 @@ public class CarController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Car added successfully", createdCar));
     }
 
+    @PreAuthorize("hasAuthority('CAR_UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserCarsDTO>> updateCar(@PathVariable Long id, @RequestBody CarCreateDTO carCreateDTO) {
         UserCarsDTO updatedCar = carService.updateCar(id, carCreateDTO);
         return ResponseEntity.ok(new ApiResponse<>(true, "Car updated successfully", updatedCar));
     }
 
+    @PreAuthorize("hasAuthority('CAR_UPDATE')")
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserCarsDTO>> patchCar(@PathVariable Long id, @RequestBody CarCreateDTO carCreateDTO) {
         UserCarsDTO patchedCar = carService.patchCar(id, carCreateDTO);
         return ResponseEntity.ok(new ApiResponse<>(true, "Car patched successfully", patchedCar));
     }
 
+    @PreAuthorize("hasAuthority('CAR_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCar(@PathVariable Long id) {
         carService.deleteCar(id);

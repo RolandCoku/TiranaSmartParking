@@ -1,7 +1,12 @@
 package com.tirana.smartparking.common.security;
 
 public enum PermissionEnum {
+    EDIT_ROLES,
     PERMISSION_GRANT,
+    ROLE_READ,
+    ROLE_CREATE,
+    ROLE_UPDATE,
+    ROLE_DELETE,
     USER_READ,
     USER_CREATE,
     USER_UPDATE,

@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -51,6 +50,7 @@ public class UserController {
             return ResponseHelper.ok("No users found", paginatedResponse);
     }
 
+    @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDTO>> getUserById(@PathVariable Long id) {
         UserResponseDTO user = userService.findById(id);
@@ -64,25 +64,28 @@ public class UserController {
         return ResponseHelper.created("User created successfully", responseDTO);
     }
 
-    //Update a user's information
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDTO>> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
         UserResponseDTO updatedUser = userService.updateUser(id, userUpdateDTO);
         return ResponseHelper.ok("User updated successfully", updatedUser);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDTO>> patchUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
         UserResponseDTO patchedUser = userService.patchUser(id, userUpdateDTO);
         return ResponseHelper.ok("User patched successfully", patchedUser);
     }
 
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseHelper.noContent();
     }
 
+    @PreAuthorize("hasAuthority('USER_READ' AND 'CAR_READ')")
     @GetMapping("/{id}/cars")
     public ResponseEntity<ApiResponse<PaginatedResponse<UserCarsDTO>>> getUserCars(
             @PathVariable Long id,
@@ -102,24 +105,28 @@ public class UserController {
             return ResponseHelper.ok("No cars found for this user", paginatedResponse);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE') AND hasAuthority('CAR_CREATE')")
     @PostMapping("/{id}/cars")
     public ResponseEntity<ApiResponse<UserCarsDTO>> addUserCar(@PathVariable Long id, @RequestBody CarCreateDTO carCreateDTO) {
         UserCarsDTO userCars = userService.addCarToUser(id, carCreateDTO);
         return ResponseHelper.ok("Car added successfully", userCars);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE') AND hasAuthority('CAR_DELETE')")
     @DeleteMapping("/{id}/cars/{carId}")
     public ResponseEntity<ApiResponse<String>> removeUserCar(@PathVariable Long id, @PathVariable Long carId) {
         userService.removeCarFromUser(id, carId);
         return ResponseHelper.noContent();
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE') AND hasAuthority('ROLE_UPDATE')")
     @PatchMapping("/{id}/roles")
     public ResponseEntity<ApiResponse<UserResponseDTO>> addUserRole(@PathVariable Long id, @RequestBody Set<String> roles) {
         UserResponseDTO user = userService.addRoleToUser(id, roles);
         return ResponseHelper.ok("Role added successfully", user);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE') AND hasAuthority('ROLE_UPDATE')")
     @DeleteMapping("/{id}/roles/{roleName}")
     public ResponseEntity<ApiResponse<UserResponseDTO>> removeUserRole(@PathVariable Long id, @PathVariable String roleName) {
         UserResponseDTO user = userService.removeRoleFromUser(id, roleName);
