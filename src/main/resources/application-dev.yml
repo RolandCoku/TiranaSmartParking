@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: parking
+
+  datasource:
+    url: ${SPRING_DEV_DATASOURCE_URL}
+    username: ${SPRING_DEV_DATASOURCE_USERNAME}
+    password: ${SPRING_DEV_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    open-in-view: false
+
+  security:
+    user:
+      name: ${SPRING_SECURITY_USER_NAME}
+      password: ${SPRING_SECURITY_USER_PASSWORD}
+
+jwt:
+  secret: "${JWT_SECRET}"
+  expiration: 3600 # 1 hour
+  refresh-expiration: 2592000 # 30 days
+
+server:
+  port: ${PORT:8080}
+
+springdoc:
+  swagger-ui:
+    operations-sorter: method
+    url: /v3/api-docs
+
+
