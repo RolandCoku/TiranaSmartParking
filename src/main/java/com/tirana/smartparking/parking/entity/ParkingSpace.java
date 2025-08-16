@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.locationtech.jts.geom.Point;
 
 import java.time.Instant;
 
@@ -36,6 +37,9 @@ public class ParkingSpace {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lot_id")
     private ParkingLot parkingLot;
+
+    @Column(nullable = false, columnDefinition = "geography(Point, 4326)")
+    private Point location;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
