@@ -1,5 +1,6 @@
 package com.tirana.smartparking.parking.entity;
 
+import com.tirana.smartparking.parking.sensor.entity.SensorDevice;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -7,6 +8,8 @@ import lombok.Setter;
 import org.locationtech.jts.geom.Point;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "parking_spaces",
@@ -38,7 +41,7 @@ public class ParkingSpace {
     @JoinColumn(name = "lot_id")
     private ParkingLot parkingLot;
 
-    @Column(nullable = false, columnDefinition = "geography(Point, 4326)")
+    @Column(columnDefinition = "geography(Point, 4326)")
     private Point location;
 
     @Enumerated(EnumType.STRING)
@@ -53,6 +56,16 @@ public class ParkingSpace {
     private String description;
 
     private Instant lastStatusChangedAt = Instant.now();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sensor_id")
+    private SensorDevice sensorDevice;
+
+    @OneToMany(mappedBy = "parkingSpace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParkingSpaceImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parkingSpace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
     @Version
     private Long version;

@@ -22,6 +22,12 @@ public class ParkingLot {
         MANUAL // Manually added
     }
 
+    public enum Status {
+        ACTIVE,
+        CLOSED,
+        UNDER_MAINTENANCE
+    }
+
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
@@ -32,21 +38,26 @@ public class ParkingLot {
     @Column(nullable = false)
     private Source source = Source.OSM;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String osmType;
+    private Status status = Status.ACTIVE;
 
-    @Column(nullable = false)
+    private String osmType;
     private Long osmId;
 
     private  String name;
     private String description;
     private String address;
+    private String phone;
+    private String email;
 
-    private Boolean active;
+    private String operatingHours;
+
     private Boolean publicAccess;
     private Boolean hasChargingStations;
     private Boolean hasDisabledAccess;
     private Boolean hasCctv;
+    private Boolean covered;
 
     private Integer capacity;
     private Integer availableSpaces;
@@ -57,6 +68,12 @@ public class ParkingLot {
 
     @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParkingSpace> parkingSpaces = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParkingLotImage> images = new ArrayList<>();
 
     @Version
     private Long version;

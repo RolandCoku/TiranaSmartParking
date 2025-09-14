@@ -33,8 +33,9 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/swagger-config/**", "/v3/api-docs/**").permitAll()// Allow login and create user
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()// Allow login and create user
+                        .requestMatchers("/swagger-ui/**", "/v3/swagger-config/**", "/v3/api-docs/**").permitAll()// Allow Swagger UI
+                        .requestMatchers("/api/v1/sensors/event").permitAll()// Allow sensor event ingestion
                         .anyRequest().authenticated() // Everything else needs auth
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Set session management to stateless for JWTs
