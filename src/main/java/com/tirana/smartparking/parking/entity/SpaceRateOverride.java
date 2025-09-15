@@ -14,7 +14,11 @@ import java.time.ZonedDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "space_rate_overrides")
+@Table(name = "space_rate_overrides",
+       uniqueConstraints = @UniqueConstraint(
+           name = "uk_space_rate_plan_active",
+           columnNames = {"space_id", "rate_plan_id"}
+       ))
 public class SpaceRateOverride {
     @Id
     @GeneratedValue
