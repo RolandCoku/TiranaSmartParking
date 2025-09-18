@@ -2,6 +2,7 @@ package com.tirana.smartparking.user.controller;
 
 import com.tirana.smartparking.common.dto.ApiResponse;
 import com.tirana.smartparking.common.response.ResponseHelper;
+import com.tirana.smartparking.common.security.PermissionEnum;
 import com.tirana.smartparking.user.dto.RoleDTO;
 import com.tirana.smartparking.user.dto.RoleResponseDTO;
 import com.tirana.smartparking.user.service.RoleService;
@@ -58,5 +59,10 @@ public class RoleController {
     public ResponseEntity<?> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
         return ResponseHelper.noContent();
+    }
+
+    @GetMapping("/permissions")
+    public ResponseEntity<ApiResponse<List<PermissionEnum>>> getAllPermissions() {
+        return ResponseHelper.ok("List of permissions fetched successfully", roleService.getAllPermissions());
     }
 }

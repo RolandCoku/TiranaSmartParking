@@ -165,6 +165,14 @@ public class RoleServiceImpl implements RoleService {
         roleRepository.deleteById(id);
     }
 
+
+    @Override
+    public List<PermissionEnum> getAllPermissions() {
+        return permissionRepository.findAll().stream()
+                .map(Permission::getName)
+                .collect(Collectors.toList());
+    }
+
     private RoleResponseDTO mapToRoleResponseDTO(Role role) {
         return new RoleResponseDTO(
                 role.getId(),

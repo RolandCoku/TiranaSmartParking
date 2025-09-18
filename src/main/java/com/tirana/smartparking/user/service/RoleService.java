@@ -1,5 +1,6 @@
 package com.tirana.smartparking.user.service;
 
+import com.tirana.smartparking.common.security.PermissionEnum;
 import com.tirana.smartparking.user.dto.RoleDTO;
 import com.tirana.smartparking.user.dto.RoleResponseDTO;
 import com.tirana.smartparking.user.entity.Role;
@@ -15,4 +16,6 @@ public interface RoleService {
     RoleResponseDTO updateRole(Long id, RoleDTO roleDTO);
     RoleResponseDTO patchRole(Long id, RoleDTO roleDTO);
     void deleteRole(Long id);
+
+    List<PermissionEnum> getAllPermissions();
 }
