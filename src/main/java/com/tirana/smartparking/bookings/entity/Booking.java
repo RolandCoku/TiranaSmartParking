@@ -1,4 +1,3 @@
-
 package com.tirana.smartparking.bookings.entity;
 
 import com.tirana.smartparking.parking.entity.Enum.UserGroup;
