@@ -5,11 +5,12 @@ import com.tirana.smartparking.common.dto.PaginatedResponse;
 import com.tirana.smartparking.common.response.ResponseHelper;
 import com.tirana.smartparking.common.util.PaginationUtil;
 import com.tirana.smartparking.common.util.SortParser;
-import com.tirana.smartparking.user.dto.CarResponseDTO;
+import com.tirana.smartparking.user.dto.PasswordChangeDTO;
 import com.tirana.smartparking.user.dto.UserCarsDTO;
 import com.tirana.smartparking.user.dto.UserResponseDTO;
 import com.tirana.smartparking.user.service.CarService;
 import com.tirana.smartparking.user.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -84,6 +85,19 @@ public class MeController {
             return ResponseHelper.ok("List of user's cars fetched successfully", paginatedResponse);
         else
             return ResponseHelper.ok("No cars found for this user", paginatedResponse);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody PasswordChangeDTO passwordChangeDTO
+    ) {
+        try {
+            userService.changePassword(userDetails.getUsername(), passwordChangeDTO);
+            return ResponseHelper.ok("Password changed successfully", null);
+        } catch (IllegalArgumentException e) {
+            return ResponseHelper.badRequest(e.getMessage(), null);
+        }
     }
 
 }

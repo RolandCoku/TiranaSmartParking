@@ -1,6 +1,5 @@
 package com.tirana.smartparking.user.service;
 
-import com.tirana.smartparking.auth.dto.UserLoginDTO;
 import com.tirana.smartparking.user.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,4 +23,5 @@ public interface UserService {
     void removeCarFromUser(Long userId, Long carId);
     UserResponseDTO addRoleToUser(Long userId, Set<String> roleName);
     UserResponseDTO removeRoleFromUser(Long userId, String roleName);
+    void changePassword(String username, PasswordChangeDTO passwordChangeDTO);
 }
