@@ -105,6 +105,7 @@ public class PricingServiceImpl implements PricingService {
     // Fall back to lot-level assignments (only if lotId is provided)
     if (lotId != null) {
       List<LotRateAssignment> lotAssignments = lotRatesRepository.findActiveAssignmentsForLot(lotId, start);
+      System.out.println("Lot assignments: " + lotAssignments);
       if (!lotAssignments.isEmpty()) {
         return lotAssignments.getFirst().getRatePlan(); // Highest priority first
       }

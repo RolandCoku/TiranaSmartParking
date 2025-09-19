@@ -15,8 +15,6 @@ import java.util.List;
 public interface LotRateAssignmentRepository extends JpaRepository<LotRateAssignment, Long> {
     
     @Query("SELECT lra FROM LotRateAssignment lra WHERE lra.lot.id = :lotId " +
-           "AND (lra.effectiveFrom IS NULL OR lra.effectiveFrom <= :date) " +
-           "AND (lra.effectiveTo IS NULL OR lra.effectiveTo > :date) " +
            "ORDER BY lra.priority DESC")
     List<LotRateAssignment> findActiveAssignmentsForLot(@Param("lotId") Long lotId, @Param("date") ZonedDateTime date);
     
