@@ -2,6 +2,7 @@ spring:
   application:
     name: parking
 
+
   datasource:
     url: ${SPRING_DEV_DATASOURCE_URL}
     username: ${SPRING_DEV_DATASOURCE_USERNAME}
@@ -30,5 +31,23 @@ springdoc:
   swagger-ui:
     operations-sorter: method
     url: /v3/api-docs
+
+schedulers:
+  activateBookings:
+    delayMs: 30000
+    maxRetries: 3
+    timeoutMs: 30000
+    enabled: true
+  noShows:
+    delayMs: 60000
+    maxRetries: 3
+    timeoutMs: 30000
+    enabled: true
+  maintenance:
+    historyRetentionDays: 30
+    maxHistoryRecords: 10000
+    cleanupEnabled: true
+    cleanupIntervalMs: 86400000 # 24 hours
+debug: true
 
 

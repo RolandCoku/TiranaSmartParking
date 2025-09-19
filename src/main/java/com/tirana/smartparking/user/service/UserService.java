@@ -3,12 +3,10 @@ package com.tirana.smartparking.user.service;
 import com.tirana.smartparking.user.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Set;
 
-@Service
 public interface UserService {
     Page<UserResponseDTO> getAllUsers(Pageable pageable);
     UserResponseDTO createUser(@RequestBody UserCreateDTO userCreateDTO);

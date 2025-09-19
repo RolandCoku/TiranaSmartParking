@@ -1,0 +1,44 @@
+# Production configuration for scheduler
+schedulers:
+  activateBookings:
+    delayMs: 30000
+    maxRetries: 3
+    timeoutMs: 30000
+    enabled: true
+  noShows:
+    delayMs: 60000
+    maxRetries: 3
+    timeoutMs: 30000
+    enabled: true
+  maintenance:
+    historyRetentionDays: 30
+    maxHistoryRecords: 10000
+    cleanupEnabled: true
+    cleanupIntervalMs: 86400000 # 24 hours
+
+# Logging configuration
+logging:
+  level:
+    com.tirana.smartparking.bookings.service.implementation.SchedulerInfoServiceImpl: INFO
+    com.tirana.smartparking.bookings.service.implementation.BookingScheduler: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Database configuration
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false

@@ -18,6 +18,35 @@ spring:
       name: ${SPRING_SECURITY_USER_NAME}
       password: ${SPRING_SECURITY_USER_PASSWORD}
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# Notification configuration
+notification:
+  scheduler:
+    processScheduled:
+      delayMs: 60000  # 1 minute
+    retryFailed:
+      delayMs: 300000  # 5 minutes
+  retention:
+    days: 30
+  channels:
+    email:
+      enabled: true
+      provider: "mock"  # Change to actual provider (sendgrid, aws-ses, etc.)
+    sms:
+      enabled: true
+      provider: "mock"  # Change to actual provider (twilio, aws-sns, etc.)
+    push:
+      enabled: true
+      provider: "mock"  # Change to actual provider (firebase, aws-sns, etc.)
+    in-app:
+      enabled: true
+      retention-days: 30
+
 jwt:
   secret: "${JWT_SECRET}"
   expiration: 3600 # 1 hour

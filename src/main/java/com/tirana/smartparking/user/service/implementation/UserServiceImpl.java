@@ -386,7 +386,6 @@ public class UserServiceImpl implements UserService {
 //                )).toList();
 //    }
 
-    // TODO: Add more validations and error handling as needed to createUser method
     @Override
     public UserResponseDTO createUser(UserCreateDTO userCreateDTO) {
         // Validate the userCreateDTO object
@@ -446,5 +445,34 @@ public class UserServiceImpl implements UserService {
                 user.getCreatedAt(),
                 user.getUpdatedAt()
         );
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(String username, PasswordChangeDTO passwordChangeDTO) {
+        // Validate password confirmation
+        if (!passwordChangeDTO.isPasswordMatch()) {
+            throw new IllegalArgumentException("New password and confirmation do not match");
+        }
+
+        // Find the user by username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+
+        // Verify current password
+        if (!passwordEncoder.matches(passwordChangeDTO.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        // Check if new password is different from current password
+        if (passwordEncoder.matches(passwordChangeDTO.newPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from current password");
+        }
+
+        // Encode and set the new password
+        user.setPassword(passwordEncoder.encode(passwordChangeDTO.newPassword()));
+
+        // Save the updated user
+        userRepository.save(user);
     }
 }
