@@ -100,22 +100,34 @@ public class ParkingSpaceServiceImpl implements ParkingSpaceService {
     @Transactional(readOnly = true)
     public Page<ParkingSpaceSummaryDTO> getParkingSpacesByLotId(Long lotId, Pageable pageable) {
         List<ParkingSpace> spaces = parkingSpaceRepository.findByParkingLotId(lotId);
-        List<ParkingSpaceSummaryDTO> summaryDTOs = spaces.stream()
+        
+        // Apply pagination manually
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), spaces.size());
+        
+        List<ParkingSpace> paginatedSpaces = spaces.subList(start, end);
+        List<ParkingSpaceSummaryDTO> summaryDTOs = paginatedSpaces.stream()
                 .map(this::mapToParkingSpaceSummaryDTO)
                 .collect(Collectors.toList());
         
-        return new org.springframework.data.domain.PageImpl<>(summaryDTOs, pageable, summaryDTOs.size());
+        return new org.springframework.data.domain.PageImpl<>(summaryDTOs, pageable, spaces.size());
     }
     
     @Override
     @Transactional(readOnly = true)
     public Page<ParkingSpaceSummaryDTO> getAvailableParkingSpacesByLotId(Long lotId, Pageable pageable) {
         List<ParkingSpace> spaces = parkingSpaceRepository.findAvailableSpacesByLotId(lotId);
-        List<ParkingSpaceSummaryDTO> summaryDTOs = spaces.stream()
+        
+        // Apply pagination manually
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), spaces.size());
+        
+        List<ParkingSpace> paginatedSpaces = spaces.subList(start, end);
+        List<ParkingSpaceSummaryDTO> summaryDTOs = paginatedSpaces.stream()
                 .map(this::mapToParkingSpaceSummaryDTO)
                 .collect(Collectors.toList());
         
-        return new org.springframework.data.domain.PageImpl<>(summaryDTOs, pageable, summaryDTOs.size());
+        return new org.springframework.data.domain.PageImpl<>(summaryDTOs, pageable, spaces.size());
     }
     
     @Override
@@ -125,11 +137,17 @@ public class ParkingSpaceServiceImpl implements ParkingSpaceService {
         double radiusMeters = radiusKm * 1000;
         
         List<ParkingSpace> spaces = parkingSpaceRepository.findNearbyAvailableSpaces(point, radiusMeters);
-        List<ParkingSpaceSummaryDTO> summaryDTOs = spaces.stream()
+        
+        // Apply pagination manually
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), spaces.size());
+        
+        List<ParkingSpace> paginatedSpaces = spaces.subList(start, end);
+        List<ParkingSpaceSummaryDTO> summaryDTOs = paginatedSpaces.stream()
                 .map(this::mapToParkingSpaceSummaryDTO)
                 .collect(Collectors.toList());
         
-        return new org.springframework.data.domain.PageImpl<>(summaryDTOs, pageable, summaryDTOs.size());
+        return new org.springframework.data.domain.PageImpl<>(summaryDTOs, pageable, spaces.size());
     }
     
     @Override
