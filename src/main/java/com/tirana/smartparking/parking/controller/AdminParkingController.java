@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,26 +33,31 @@ class AdminParkingController {
         this.sortParser = sortParser;
     }
 
+    @PreAuthorize("hasAuthority('PARKING_LOT_CREATE')")
     @PostMapping("/lots")
     public ResponseEntity<ApiResponse<ParkingLotResponseDTO>> registerParkingLot(@Validated @RequestBody ParkingLotRegistrationDTO parkingLotRegistrationDTO) {
         return ResponseHelper.created("Parking lot registered successfully", parkingLotService.registerParkingLot(parkingLotRegistrationDTO));
     }
 
+    @PreAuthorize("hasAuthority('PARKING_SPACE_CREATE')")
     @PostMapping("/spaces")
     public ResponseEntity<ApiResponse<ParkingSpaceResponseDTO>> registerParkingSpace(@Validated @RequestBody ParkingSpaceRegistrationDTO parkingSpaceRegistrationDTO) {
         return ResponseHelper.created("Parking space registered successfully", parkingSpaceService.registerParkingSpace(parkingSpaceRegistrationDTO));
     }
 
+    @PreAuthorize("hasAuthority('PARKING_LOT_READ')")
     @GetMapping("/lots/{id}")
     public ResponseEntity<ApiResponse<ParkingLotResponseDTO>> getParkingLotById(@PathVariable Long id) {
         return ResponseHelper.ok("Parking lot fetched successfully", parkingLotService.getParkingLotById(id));
     }
 
+    @PreAuthorize("hasAuthority('PARKING_SPACE_READ')")
     @GetMapping("/spaces/{id}")
     public ResponseEntity<ApiResponse<ParkingSpaceResponseDTO>> getParkingSpaceById(@PathVariable Long id) {
         return ResponseHelper.ok("Parking space fetched successfully", parkingSpaceService.getParkingSpaceById(id));
     }
 
+    @PreAuthorize("hasAuthority('PARKING_SPACE_READ')")
     @GetMapping("/spaces")
     public ResponseEntity<ApiResponse<PaginatedResponse<ParkingSpaceResponseDTO>>> getParkingSpaces(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -69,6 +75,7 @@ class AdminParkingController {
         return ResponseHelper.ok("List of parking spaces fetched successfully", response);
     }
 
+    @PreAuthorize("hasAuthority('PARKING_LOT_READ')")
     @GetMapping("/lots")
     public ResponseEntity<ApiResponse<PaginatedResponse<ParkingLotResponseDTO>>> getParkingLots(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -84,25 +91,22 @@ class AdminParkingController {
         return ResponseHelper.ok("List of parking lots fetched successfully", response);
     }
 
-    //TODO: Implement update methods
+    @PreAuthorize("hasAuthority('PARKING_LOT_UPDATE')")
     @PutMapping("/lots/{id}")
     public ResponseEntity<ApiResponse<ParkingLotResponseDTO>> updateParkingLot(@PathVariable Long id, @Validated @RequestBody ParkingLotRegistrationDTO parkingLotRegistrationDTO) {
-        // Assuming there's an update method in the service
-        // return ResponseHelper.ok("Parking lot updated successfully", parkingLotService.updateParkingLot(id, parkingLotRegistrationDTO));
-        return ResponseHelper.ok("Not implemented yet", null);
+        return ResponseHelper.ok("Parking lot updated successfully", parkingLotService.updateParkingLot(id, parkingLotRegistrationDTO));
     }
 
+    @PreAuthorize("hasAuthority('PARKING_LOT_UPDATE')")
     @PatchMapping("/lots/{id}")
     public ResponseEntity<ApiResponse<ParkingLotResponseDTO>> patchParkingLot(@PathVariable Long id, @RequestBody ParkingLotRegistrationDTO parkingLotRegistrationDTO) {
-        // Assuming there's a patch method in the service
-        // return ResponseHelper.ok("Parking lot patched successfully", parkingLotService.patchParkingLot(id, parkingLotRegistrationDTO));
-        return ResponseHelper.ok("Not implemented yet", null);
+        return ResponseHelper.ok("Parking lot patched successfully", parkingLotService.patchParkingLot(id, parkingLotRegistrationDTO));
     }
 
+    @PreAuthorize("hasAuthority('PARKING_LOT_DELETE')")
     @DeleteMapping("/lots/{id}")
     public ResponseEntity<?> deleteParkingLot(@PathVariable Long id) {
-        // Assuming there's a delete method in the service
-        // parkingLotService.deleteParkingLot(id);
+        parkingLotService.deleteParkingLot(id);
         return ResponseHelper.noContent();
     }
 }

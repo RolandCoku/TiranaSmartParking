@@ -1,8 +1,11 @@
 package com.tirana.smartparking.parking.dto;
 
-import java.time.Instant;
+import com.tirana.smartparking.parking.entity.ParkingLot;
 
-public record ParkingLotResponseDTO(
+import java.time.Instant;
+import java.util.List;
+
+public record ParkingLotDetailDTO(
         Long id,
         String name,
         String description,
@@ -10,7 +13,7 @@ public record ParkingLotResponseDTO(
         String phone,
         String email,
         String operatingHours,
-        String status,
+        ParkingLot.Status status,
         Double latitude,
         Double longitude,
         Boolean publicAccess,
@@ -20,7 +23,13 @@ public record ParkingLotResponseDTO(
         Boolean covered,
         Integer capacity,
         Integer availableSpaces,
+        Integer occupiedSpaces,
+        Double availabilityPercentage,
         Instant availabilityUpdatedAt,
+        List<ParkingSpaceSummaryDTO> parkingSpaces,
+        List<ReviewSummaryDTO> reviews,
+        Double averageRating,
+        Integer totalReviews,
         Instant createdAt,
         Instant updatedAt
 ) {

@@ -1,11 +1,15 @@
 package com.tirana.smartparking.parking.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "parking_space_images")
+@Getter
+@Setter
 public class ParkingSpaceImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

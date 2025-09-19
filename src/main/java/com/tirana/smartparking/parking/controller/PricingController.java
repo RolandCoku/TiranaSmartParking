@@ -8,6 +8,7 @@ import com.tirana.smartparking.parking.entity.Enum.UserGroup;
 import com.tirana.smartparking.parking.entity.Enum.VehicleType;
 import com.tirana.smartparking.parking.service.RateManagementService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,14 @@ public class PricingController {
         this.rateManagementService = rateManagementService;
     }
     
+    @PreAuthorize("hasAuthority('PRICING_QUOTE')")
     @PostMapping("/quote")
     public ResponseEntity<ApiResponse<Money>> getPricingQuote(@Validated @RequestBody PricingQuoteDTO quoteDTO) {
         Money quote = rateManagementService.getPricingQuote(quoteDTO);
         return ResponseHelper.ok("Pricing quote calculated successfully", quote);
     }
     
+    @PreAuthorize("hasAuthority('PRICING_QUOTE')")
     @GetMapping("/spaces/{spaceId}/quote")
     public ResponseEntity<ApiResponse<Money>> getStandaloneSpaceQuote(
             @PathVariable Long spaceId,

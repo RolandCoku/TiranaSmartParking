@@ -3,6 +3,7 @@ package com.tirana.smartparking.parking.service.implementation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tirana.smartparking.common.dto.Money;
+import com.tirana.smartparking.common.exception.ResourceNotFoundException;
 import com.tirana.smartparking.common.util.VisitSlice;
 import com.tirana.smartparking.common.util.VisitSlicer;
 import com.tirana.smartparking.parking.entity.Enum.UserGroup;
@@ -14,7 +15,7 @@ import com.tirana.smartparking.parking.entity.SpaceRateOverride;
 import com.tirana.smartparking.parking.repository.LotRateAssignmentRepository;
 import com.tirana.smartparking.parking.repository.RateRuleRepository;
 import com.tirana.smartparking.parking.repository.SpaceRateOverrideRepository;
-import com.tirana.smartparking.parking.service.ParkingService;
+import com.tirana.smartparking.parking.service.PricingService;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class PricingServiceImpl implements ParkingService {
+public class PricingServiceImpl implements PricingService {
   private final LotRateAssignmentRepository lotRatesRepository;
   private final SpaceRateOverrideRepository spaceRatesRepository;
   private final RateRuleRepository rulesRepository;
@@ -93,7 +94,7 @@ public class PricingServiceImpl implements ParkingService {
   // helpers...
   
   private RatePlan resolvePlan(Long lotId, Long spaceId, ZonedDateTime start, ZonedDateTime end) {
-    // Check for space-specific overrides first (highest priority)
+    // Check for space-specific overrides first (the highest priority)
     if (spaceId != null) {
       List<SpaceRateOverride> spaceOverrides = spaceRatesRepository.findActiveOverridesForSpace(spaceId, start);
       if (!spaceOverrides.isEmpty()) {
@@ -111,10 +112,10 @@ public class PricingServiceImpl implements ParkingService {
     
     // If we have a space but no lot, and no space-specific rates, throw an error
     if (spaceId != null && lotId == null) {
-      throw new RuntimeException("No rate plan found for standalone parking space " + spaceId + ". Please assign a rate plan to this space.");
+      throw new ResourceNotFoundException("No rate plan found for standalone parking space " + spaceId + ". Please assign a rate plan to this space.");
     }
     
-    throw new RuntimeException("No rate plan found for lot " + lotId + " and space " + spaceId);
+    throw new ResourceNotFoundException("No rate plan found for lot " + lotId + " and space " + spaceId);
   }
   
   private int roundUp(long minutes, int increment) {
@@ -164,5 +165,11 @@ public class PricingServiceImpl implements ParkingService {
     } catch (JsonProcessingException e) {
       return "{}";
     }
+  }
+  
+  @Override
+  public Integer getGraceMinutes(Long lotId, Long spaceId, ZonedDateTime startTime) {
+    RatePlan plan = resolvePlan(lotId, spaceId, startTime, startTime.plusMinutes(1));
+    return plan.getGraceMinutes();
   }
 }
