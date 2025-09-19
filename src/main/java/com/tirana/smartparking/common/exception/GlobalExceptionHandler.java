@@ -1,8 +1,10 @@
 package com.tirana.smartparking.common.exception;
 
 import com.tirana.smartparking.common.dto.ApiResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -64,5 +66,51 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ApiResponse<String> handleBadCredentials(BadCredentialsException ex) {
         return new ApiResponse<>(false, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        String message = ex.getMessage();
+        
+        // Check if it's a date/time parsing error
+        if (message != null && (message.contains("ZonedDateTime") || message.contains("DateTimeParseException"))) {
+            message = "Invalid date/time format. Please use one of these formats: " +
+                    "yyyy-MM-dd'T'HH:mm:ssXXX (e.g., 2025-09-18T10:51:00+02:00), " +
+                    "yyyy-MM-dd'T'HH:mmXXX (e.g., 2025-09-18T10:51+02:00), " +
+                    "yyyy-MM-dd'T'HH:mm:ss (e.g., 2025-09-18T10:51:00), " +
+                    "yyyy-MM-dd'T'HH:mm (e.g., 2025-09-18T10:51)";
+        } else {
+            message = "Invalid request format: " + message;
+        }
+        
+        return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(false, message, null));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<?>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = ex.getMessage();
+        
+        // Check for specific foreign key constraint violations
+        if (message != null) {
+            if (message.contains("parking_spaces") && message.contains("bookings")) {
+                message = "Cannot delete this parking space because it is currently referenced by existing bookings. Please cancel or complete all related bookings first.";
+            } else if (message.contains("foreign key constraint")) {
+                message = "Cannot perform this operation because the resource is still referenced by other data. Please remove all dependencies first.";
+            } else {
+                message = "Data integrity violation: " + message;
+            }
+        } else {
+            message = "Data integrity violation occurred. The operation cannot be completed due to database constraints.";
+        }
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(false, message, null));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<?>> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, "An unexpected error occurred: " + ex.getMessage(), null));
     }
 }
